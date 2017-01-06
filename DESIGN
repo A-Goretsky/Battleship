@@ -4,47 +4,45 @@ By Dylan Wright, Stephan Doan, Anton Goretsky
 -------------------------------------------------------------------------------------
 Basic Description: 
 For our Systems Level Programming and Nerd Culture Term Project, our group will be replicating the classic game of Battleship. Our project will be played via two separate terminals through the use of networking and systems level programming. One can either use a separate machine, or connect via localhost to play on a single one. The game will have three primary stages: setup, play, and end.
-* Users will begin with the choice of either an Emoji or Standard ASCII display. (Some terminals do not support emojis.) 
-* Users will then select to either host or join an existing battleship game (which they know the host IP address of).
-   * If the user chooses to host a game, they will be designated as the server, and will be told to wait until a connection is established.
-      * The host will be asked to set the rules of the game. For example, whether or not ships will be allowed to be placed next to one another, or whether the host, challenger, or random one of the two players goes first.
-   * If the user chooses to join a game, they will be designated as the client, and will be asked for an ip to connect to.
-* Once the choices have been made, both users shall be presented with an empty board, and shall type the coordinates to place their ships. 
-* The game will then start, and each shall now have a display of two boards: the “enemy” board, and their “home” board.
-* There will also be a side-board displaying which ships remain for both players, which shall update as ships are sunken.
-* The player selected during the setup of the game will “attack” first. The “attacker” shall type in firing coordinates, which will result in either a hit or a miss displayed on the boards of both users.
-* Standard Battleship rules apply, with a hit resulting in a repeat turn, and a miss in a turn change.
-* When the game is over, both users shall be prompted with a game-over screen, a winning or losing message, the option to play again, view a playback of the entire game, or return to the main menu.
+  - Users will begin with the choice of either an Emoji or Standard ASCII display. (Some terminals do not support emojis.) 
+  - Users will then select to either host or join an existing battleship game (which they know the host IP address of).
+     * If the user chooses to host a game, they will be designated as the server, and will be told to wait until a connection is established.
+        * The host will be asked to set the rules of the game. For example, whether or not ships will be allowed to be placed next to one another, or whether the host, challenger, or random one of the two players goes first.
+     * If the user chooses to join a game, they will be designated as the client, and will be asked for an ip to connect to.
+  - Once the choices have been made, both users shall be presented with an empty board, and shall type the coordinates to place their ships. 
+  - The game will then start, and each shall now have a display of two boards: the “enemy” board, and their “home” board.
+  - There will also be a side-board displaying which ships remain for both players, which shall update as ships are sunken.
+  - The player selected during the setup of the game will “attack” first. The “attacker” shall type in firing coordinates, which will result in either a hit or a miss displayed on the boards of both users.
+  - Standard Battleship rules apply, with a hit resulting in a repeat turn, and a miss in a turn change.
+  - When the game is over, both users shall be prompted with a game-over screen, a winning or losing message, the option to play again, view a playback of the entire game, or return to the main menu.
 -------------------------------------------------------------------------------------
 Technical Design: 
-
-
-* 1 Main file (host/client), present on both computers. This file will be the same from the start, and get updated individually, as either the client or host selects options that pertain to one or both. Each file contains a Struct with the basic rules, classifications and settings. Small breakdown:
-   * Both players run file.
-   * Each player is individually asked whether they would like an emoji or standard ASCII character display. Local struct is updated.
-   * One selects “host”. That player is asked to select the game settings. Struct is updated on local end. Player is asked to wait for connection.
-   * Second user selects “join”. That player is asked to enter the host’s IP address. Once connection is established, local struct for client get set based on hosts choices. 
-   * Both players then move to the play stage of the game.
-* Both users have 2 2D arrays. One will be an array of their ship locations, and one will be an array of their guesses.
-* Forking processes for submenus.
-* Structs for main rules/variables, as mentioned earlier.
-* Fgets, and further text / string processing methods, as entire game is controlled by user input.
-* Files for storage of moves and ship locations for game playback.
-* Cleanup/error checking of user input.
+  - 1 Main file (host/client), present on both computers. This file will be the same from the start, and get updated individually, as either the client or host selects options that pertain to one or both. Each file contains a Struct with the basic rules, classifications and settings. Small breakdown:
+     * Both players run file.
+     * Each player is individually asked whether they would like an emoji or standard ASCII character display. Local struct is updated.
+     * One selects “host”. That player is asked to select the game settings. Struct is updated on local end. Player is asked to wait for connection.
+     * Second user selects “join”. That player is asked to enter the host’s IP address. Once connection is established, local struct for client get set based on hosts choices. 
+     * Both players then move to the play stage of the game.
+  - Both users have 2 2D arrays. One will be an array of their ship locations, and one will be an array of their guesses.
+  - Forking processes for submenus.
+  - Structs for main rules/variables, as mentioned earlier.
+  - Fgets, and further text / string processing methods, as entire game is controlled by user input.
+  - Files for storage of moves and ship locations for game playback.
+  - Cleanup/error checking of user input.
 -------------------------------------------------------------------------------------
 Work Breakdown (As per current moment):
-* UI Implementation: Anton
-* Game: Stephan / Dylan
-* Networking: All
+  - UI Implementation: Anton
+  - Game: Stephan / Dylan
+  - Networking: All
 This may slightly shift, as there will most likely be communication and interaction between all three fronts of the project
 -------------------------------------------------------------------------------------
 Timeline:
-[1/6/17] Get Design Plan Approved
-[1/10/17] Review Networking
-[1/11/17 - 1/14/17] Implement Basic Networking Protocols
-[1/14/17 - 1/16/17] Base gameplay complete, ready to have rules and designs applied.
-[1/17/17] Gooey UI with options ← VERY Gooey. So gooey it’s a smoothie, Stewie.
-[1/18/17] Rules fully implemented.
-[1/19/17] - 1/20/17 - 1/22/17: Debugging/additional features
-[1/23/17] Finish Project
+  [1/6/17] Get Design Plan Approved
+  [1/10/17] Review Networking
+  [1/11/17 - 1/14/17] Implement Basic Networking Protocols
+  [1/14/17 - 1/16/17] Base gameplay complete, ready to have rules and designs applied.
+  [1/17/17] Gooey UI with options ← VERY Gooey. So gooey it’s a smoothie, Stewie.
+  [1/18/17] Rules fully implemented.
+  [1/19/17] - 1/20/17 - 1/22/17: Debugging/additional features
+  [1/23/17] Finish Project
 ------------------------------------------------------------------------------------
