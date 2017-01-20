@@ -10,16 +10,17 @@ void sub_server( int sd );
 
 int main( int argc, char *argv[] ) {
   char b1[MESSAGE_BUFFER_SIZE]; 
+  printf("Server (s) or Client (c)?\n");
   fgets( b1, sizeof(b1), stdin );
   char *p = strchr(b1, '\n');
   *p = 0;
-  if(strcmp(b1, "s")){
+  if(!strcmp(b1, "s")){
     int sd, connection;
-  
+    printf("why\n");
     sd = server_setup();
       
     while (1) {
-  
+      printf("lol\n");
       connection = server_connect( sd );
   
       int f = fork();
@@ -34,7 +35,7 @@ int main( int argc, char *argv[] ) {
         close( connection );
       }
     }
-  }else if(strcmp(b1, "c")){
+  }else if(!strcmp(b1, "c")){
     char *host;
     if (argc != 2 ) {
       printf("host not specified, conneting to 127.0.0.1\n");
