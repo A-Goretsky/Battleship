@@ -52,7 +52,7 @@ int main( int argc, char *argv[] ) {
     
     while (1) {
       printf("enter message: ");
-      fgets( b2, sizeof(2), stdin );
+      fgets( b2, sizeof(b2), stdin );
       char *p = strchr(b2, '\n');
       *p = 0;
     
