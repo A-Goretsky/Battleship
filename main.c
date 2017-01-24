@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <netinet/in.h>
 
 #include "networking.h"
 
@@ -35,12 +36,12 @@ int main( int argc, char *argv[] ) {
 		  strcat(settings, "\t1. Yes, these settings are correct.\n\t2. No, I would like to start over.\nEnter Value: ");
 		  CONFIRMATION = inputSettings(settings, "confirm");
     }*/
-    
+
     //CONNECTION PHASE
     //new attempt at settings
-    
-   
-   
+
+
+
 
 
     char b9[MESSAGE_BUFFER_SIZE];
@@ -48,25 +49,28 @@ int main( int argc, char *argv[] ) {
     fgets(b9, sizeof(b9), stdin);
     char *p = strchr(b9, '\n');
     *p = 0;
-    
-    printf("printing b9: %c\n", b9);
-    printf("printing board size outside of while: %c", EMOJI_SET);
-
+    if(!strcmp(b9, "1")){
+        BOARD_SIZE = 1;
+    }else if(!strcmp(b9,"2")){
+        BOARD_SIZE = 2;
+    }else if(!strcmp(b9,"3")){
+        BOARD_SIZE = 3;
+    }else{
+        printf("Value not in range\n");
+    }
+    short netVal = htons(BOARD_SIZE);
     while (1) {
       printf("Attempting Connection...\n");
       connection = server_connect( sd );
       close(sd);
       char buffer[MESSAGE_BUFFER_SIZE];
-      
+
       //Print Rules on Client End.
-      printf("JUST A RANDOM PRINT\n");
-      //printf("printing BOARD_SIZE: %c\n", BOARD_SIZE);
-      //strcpy(buffer, "hi");
-      write(connection, b9, sizeof(b9));
+      write(connection, netVal, sizeof(netVal));
       //Main while loop
       while (read(connection, buffer, sizeof(buffer) )) {
         printf("[SERVER %d] received: %s\n", getpid(), buffer );
-        write(connection, buffer, sizeof(buffer));  
+        write(connection, buffer, sizeof(buffer));
       }
       exit(0);
       close( connection );
@@ -98,43 +102,43 @@ int main( int argc, char *argv[] ) {
           int num4slotships = 2;
           int num5slotships = 3;
       }
-      
+
       char guessBoard[size][size];
       char shipBoard[size][size];
       char enemyShipBoard[size][size];
-      
+
       printBoard(shipBoard);
       printf("Number of 2 Slot Ships: %d\n", num2slotships);
       printf("Number of 3 Slot Ships: %d\n", num3slotships);
       printf("Number of 4 Slot Ships: %d\n", num4slotships);
       printf("Number of 5 Slot Ships: %d\n", num5slotships);
-      
+
       int xcoor = 0;
       int ycoor = 0;
       char *buffer[MESSAGE_BUFFER_SIZE];
       while(num2slotships) {
-          
+
           printf("Where would you like to place the first point of your 2 slot ship?\n");
           int row = 0;
           printf("Enter the x coordinate: ");
           fgets(buffer, sizeof(buffer), stdin);
           row = atoi(buffer);
-          gb 
+          gb
           int column = 0;
           printf("Enter the y coordinate: ");
           fgets(buffer, sizeof(buffer), stdin);
           column = atoi(buffer);
-          
+
           if (shipBoard[row][column] == '0') {
-            
+
           }
       }
-      
-      
+
+
       */
     }
   }
-  
+
   else if(!strcmp(b1, "c")){
     char *host[MESSAGE_BUFFER_SIZE];
     printf("What IP would you like to connect to?\n");
@@ -147,8 +151,10 @@ int main( int argc, char *argv[] ) {
 
     sd = client_connect( host );
 
-    char b2[MESSAGE_BUFFER_SIZE];
-    read(sd, b2, sizeof(b2));
+    short netVal[MESSAGE_BUFFER_SIZE];
+    read(sd, netVal, sizeof(netVal));
+    printf("printing netVal: %c\n", netVal);
+    short b2 = ntohs(netVal);
     printf("wassup\n");
     //atoi(b2);
     printf("printing b2: %c\n", b2);
