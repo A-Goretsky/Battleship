@@ -36,10 +36,12 @@ int main( int argc, char *argv[] ) {
 		                                    \t2.Standard\n\
 		                                    Enter Value: ", "emoji");
 
-		  char *settings = "Are you okay with these settings correct?\n";
-		  strcat(strcat(strcat(settings,
-		                       itoa(BOARD_SIZE)),
-		                itoa(EMOJI_SET)),
+		  char *settings = "Are you okay with these settings?\n";
+		  char BSString[16];
+		  sprintf(BSString, "%d", BOARD_SIZE);
+		  char ESString[16];
+		  sprintf(ESString, "%d", EMOJI_SET);
+		  strcat(strcat(strcat(settings, BSString), ESString),
 		         "\t1. Yes, these settings are correct.\n\
 		          \t2. No, I would like to start over.\n\
 		          Enter Value: ");
@@ -69,7 +71,7 @@ int main( int argc, char *argv[] ) {
   else if(!strcmp(b1, "c")){
     char *host;
     if (argc != 2 ) {
-      printf("host not specified, conneting to 127.0.0.1\n");
+      printf("host not specified, conneting to 149.89\n");
       host = "127.0.0.1";
     }
     else {
