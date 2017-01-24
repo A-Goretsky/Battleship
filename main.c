@@ -10,8 +10,8 @@ void process( char * s );
 void sub_server( int sd );
 int inputSettings(char *question, char *type);
 
-
 int main() {
+
   char b1[MESSAGE_BUFFER_SIZE];
   printf("Server (s) or Client (c)?\n");
   fgets( b1, sizeof(b1), stdin );
@@ -30,12 +30,11 @@ int main() {
                                       \t2. Bourgeoisie\n\
                                       \t3. Yuge\n\
                                       Enter Value: ", "board");
-                                      
 		  int EMOJI_SET = inputSettings("Would you like Emoji or standard ASCII graphics?\n\
 		                                    \t1. Emoji\n\
 		                                    \t2.Standard\n\
 		                                    Enter Value: ", "emoji");
-		                                    
+
 		  char *settings = "Are you okay with these settings?\n";
 		  char BSString[16];
 		  sprintf(BSString, "%d", BOARD_SIZE);
@@ -74,6 +73,7 @@ int main() {
     fgets( host, sizeof(host), stdin );
     char *cut = strchr(host, '\n');
     *cut = 0;
+
     int sd;
 
     sd = client_connect( host );
