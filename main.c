@@ -122,6 +122,52 @@ int main( int argc, char *argv[] ) {
   return 0;
 }
 
+/*
+        //----------------------------------------------------PLACEMENT PHASE----------------------------------------------------
+        //variables both server and client need for placement
+        int size;
+        int num2slotships;
+        int num3slotships;
+        int num4slotships;
+        int num5slotships;
+        int BOARD_SIZE;
+      
+        //setting variables according to entered BOARD_SIZE
+        if (BOARD_SIZE == 1) {
+            size = 7;
+            int num2slotships = 1;
+            int num3slotships = 2;
+            int num4slotships = 1;
+            int num5slotships = 1;
+        }
+        if (BOARD_SIZE == 2) {
+            size = 14;
+            int num2slotships = 2;
+            int num3slotships = 3;
+            int num4slotships = 1;
+            int num5slotships = 2;
+        }
+        if (BOARD_SIZE == 3) {
+            size = 20;
+            int num2slotships = 2;
+            int num3slotships = 3;
+            int num4slotships = 2;
+            int num5slotships = 3;
+        }
+      
+        //creating boards of appropriate size
+        char guessBoard[size][size];
+        char shipBoard[size][size];
+        char enemyShipBoard[size][size];
+      
+        //printing board and number of remaining ships
+        printBoard(shipBoard);
+        printf("Number of 2 Slot Ships: %d\n", num2slotships);
+        printf("Number of 3 Slot Ships: %d\n", num3slotships);
+        printf("Number of 4 Slot Ships: %d\n", num4slotships);
+        printf("Number of 5 Slot Ships: %d\n", num5slotships);
+        */
+
 void process( char * s ) {
 
   while ( *s ) {
