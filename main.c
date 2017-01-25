@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 
 #include "networking.h"
+#include "main.h"
 
 void process( char * s );
 void sub_server( int sd );
@@ -17,45 +18,36 @@ int main( int argc, char *argv[] ) {
   fgets( b1, sizeof(b1), stdin );
   char *p = strchr(b1, '\n');
   *p = 0;
+
+  //Important variables
+
   int BOARD_SIZE = 0;
   int EMOJI_SET = 0;
+
+  //Server Related Everything.
+
   if(!strcmp(b1, "s")){
     int sd, connection;
     printf("Successfully received server input...\n");
     sd = server_setup();
 
-    //----------------------------------------------------SETUP PHASE: SERVER ONLY----------------------------------------------------
-    /*int CONFIRMATION = 0;
-    while(!CONFIRMATION) {
-          BOARD_SIZE = inputSettings("What would you like the size of the board to be?\n\t1. Small (7x7)\n\t2. Medium (14x14)\n\t3. Large (20x20)\nEnter Value: ", "board");
-		  EMOJI_SET = inputSettings("Would you like Emoji or standard ASCII graphics?\n\t1. Emoji\n\t2. Standard\nEnter Value: ", "emoji");
-		  printf("printing within while: %d", BOARD_SIZE);
-		  char settings[50];
-		  strcpy(settings,  "Are you okay with these settings?\n");
-		  printSettings(BOARD_SIZE, EMOJI_SET);
-		  strcat(settings, "\t1. Yes, these settings are correct.\n\t2. No, I would like to start over.\nEnter Value: ");
-		  CONFIRMATION = inputSettings(settings, "confirm");
-    }*/
-
-    //----------------------------------------------------CONNECTION PHASE----------------------------------------------------
-    //new attempt at settings
-
-
-
-
-
+   //----------------------------------------------------SETUP PHASE: SERVER ONLY---------------------------------------------
+    //Ask user to set rules.
     char b9[MESSAGE_BUFFER_SIZE];
-    printf("What would you like the size of the board to be?\n\t1. Small (7x7)\n\t2. Medium (14x14)\n\t3. Large (20x20)\nEnter Value: ");
+    printf("What would you like the size of the board to be?\n\t1. Small (8x8)\n\t2. Medium (14x14)\n\t3. Large (20x20)\nEnter Value: ");
     fgets(b9, sizeof(b9), stdin);
     char *p = strchr(b9, '\n');
     *p = 0;
     if(!strcmp(b9, "1")){
         BOARD_SIZE = 1;
-    }else if(!strcmp(b9,"2")){
+    }
+    else if(!strcmp(b9,"2")){
         BOARD_SIZE = 2;
-    }else if(!strcmp(b9,"3")){
+    }
+    else if(!strcmp(b9,"3")){
         BOARD_SIZE = 3;
-    }else{
+    }
+    else{
         printf("Value not in range\n");
     }
     int netVal = htons(BOARD_SIZE);
@@ -70,6 +62,30 @@ int main( int argc, char *argv[] ) {
       //Send Rules to Client.
       write(connection, &netVal, sizeof(netVal));
 
+    //----------------------------------------------------PLACEMENT PHASE (SERVER)----------------------------------------------------
+
+    //variables both server and client need for placement
+    int size;
+
+    //setting variables according to entered BOARD_SIZE
+    if (BOARD_SIZE == 1) {
+        size = 8;
+    }
+    if (BOARD_SIZE == 2) {
+        size = 14;
+    }
+    if (BOARD_SIZE == 3) {
+        size = 20;
+    }
+
+    //creating boards of appropriate size
+    char guessBoard_S[size][size];
+    char shipBoard_S[size][size];
+
+    memcpy(shipBoard_S, shipPlacement(BOARD_SIZE), sizeof(char) * size * size);
+
+    //----------------------------------------------------END OF PLACEMENT PHASE (SERVER)----------------------------------------------------
+
       //Main while loop
       while (read(connection, buffer, sizeof(buffer) )) {
         printf("[SERVER %d] received: %s\n", getpid(), buffer );
@@ -81,8 +97,12 @@ int main( int argc, char *argv[] ) {
     }
   }
 
+  //Client Related Everything.
+
   else if(!strcmp(b1, "c")){
-    char *host[MESSAGE_BUFFER_SIZE];
+
+    //Client to server connection
+    char host[MESSAGE_BUFFER_SIZE];
     printf("What IP would you like to connect to?\n");
     fgets( host, sizeof(host), stdin );
     printf("fgets here\n");
@@ -101,10 +121,46 @@ int main( int argc, char *argv[] ) {
     printf("wassup\n");
     printf("printing received: %x\n", rule);
     printf("printing ntohs(rule): %d\n", ntohs(rule));
+    rule = ntohs(rule);
+    if(rule==1){
+        printf("Board size is Small (7x7)\n");
+    }
+    else if(rule==2){
+        printf("Board size is Medium (14x14)\n");
+    }
+    else if(rule==3){
+        printf("Board size is Large (20x20)\n");
+    }
+    else{
+        printf("Something went wrong during the connection phase.\n");
+    }
 
-    //
+    //----------------------------------------------------PLACEMENT PHASE (CLIENT)----------------------------------------------------
 
+    //variables both server and client need for placement
+    int size;
 
+    //setting variables according to entered BOARD_SIZE
+    if (BOARD_SIZE == 1) {
+          size = 8;
+    }
+    if (BOARD_SIZE == 2) {
+          size = 14;
+    }
+    if (BOARD_SIZE == 3) {
+          size = 20;
+    }
+
+    //creating boards of appropriate size
+    char guessBoard_C[size][size];
+    char shipBoard_C[size][size];
+
+    //Set board to blank spaces.
+
+    memcpy(shipBoard_C, shipPlacement(BOARD_SIZE), sizeof(char) * size * size);
+    //----------------------------------------------------END OF PLACEMENT PHASE (CLIENT)----------------------------------------------------
+
+    //------------------------------Game------------------------------------
     while (1) {
       printf("enter message: ");
       fgets( b2, sizeof(b2), stdin );
@@ -121,166 +177,6 @@ int main( int argc, char *argv[] ) {
   }
   return 0;
 }
-
-/*
-        //----------------------------------------------------PLACEMENT PHASE----------------------------------------------------
-        //variables both server and client need for placement
-        int size;
-        int num2slotships;
-        int num3slotships;
-        int num4slotships;
-        int num5slotships;
-        int BOARD_SIZE;
-      
-        //setting variables according to entered BOARD_SIZE
-        if (BOARD_SIZE == 1) {
-            size = 7;
-            int num2slotships = 1;
-            int num3slotships = 2;
-            int num4slotships = 1;
-            int num5slotships = 1;
-        }
-        if (BOARD_SIZE == 2) {
-            size = 14;
-            int num2slotships = 2;
-            int num3slotships = 3;
-            int num4slotships = 1;
-            int num5slotships = 2;
-        }
-        if (BOARD_SIZE == 3) {
-            size = 20;
-            int num2slotships = 2;
-            int num3slotships = 3;
-            int num4slotships = 2;
-            int num5slotships = 3;
-        }
-      
-        //creating boards of appropriate size
-        char guessBoard[size][size];
-        char shipBoard[size][size];
-        char enemyShipBoard[size][size];
-      
-        //printing board and number of remaining ships
-        printBoard(shipBoard);
-        printf("Number of 2 Slot Ships: %d\n", num2slotships);
-        printf("Number of 3 Slot Ships: %d\n", num3slotships);
-        printf("Number of 4 Slot Ships: %d\n", num4slotships);
-        printf("Number of 5 Slot Ships: %d\n", num5slotships);
-        //--------------------------ACTUAL PLACEMENT BEGINS HERE--------------------------
-        char *buffer[MESSAGE_BUFFER_SIZE];
-        //temp loop to place all 2 slot ships first, may replace later with random ship selection.
-        while(num2slotships) {
-          
-            //-------------Asking for first coordinate-------------
-            printf("Where would you like to place the first point of your 2 slot ship?\n");
-          
-            //ask for row
-            //loop to make sure row input is in the array
-            int rowcheck = 0;
-            while(!rowcheck) {
-                int row = 0;
-                printf("Enter the x coordinate: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                row = atoi(buffer);
-              
-                //if column is within range, pass column check
-                if((row > 0) && (row <= size)) {
-                    rowcheck = 1;
-                }
-                  
-                //else print error and ask for another input
-                else {
-                    printf("That is not a valid row number.\n");
-                }
-            }
-              
-            //ask for column
-            //loop to make sure column input is in the array
-            int columncheck = 0;
-            while(!columncheck) {
-                int column = 0;
-                printf("Enter the y coordinate: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                column = atoi(buffer);
-                
-                //if column is within range, pass column check
-                if((column > 0) && (column <= size)) {
-                    columncheck = 1;
-                }
-                
-                //else print error and ask for another input
-                else {
-                    printf("That is not a valid column number.\n");
-                }
-            }
-              
-            //check if there is a ship already at the entered location
-            if (shipBoard[row][column] == '0')) {
-                printf("There is already a ship there. Please enter different coordinates.\n");
-            }
-              
-              
-            //-------------Asking for second coordinate-------------
-            printf("Where would you like to place the second point of your 2 slot ship?\n");
-              
-            //ask for row
-            //loop to make sure row input is in the array
-            int row2check = 0;
-            while(!row2check) {
-                int row2 = 0;
-                printf("Enter the x coordinate: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                row2 = atoi(buffer);
-                  
-                //if column is within range, pass column check
-                if((row2 > 0) && (row2 <= size)) {
-                    row2check = 1;
-                }
-                  
-                //else print error and ask for another input
-                else {
-                    printf("That is not a valid row number.\n");
-                }
-            }
-              
-            //ask for column
-            //loop to make sure column input is in the array
-            int column2check = 0;
-            while(!column2check) {
-                int column2 = 0;
-                printf("Enter the y coordinate: ");
-                fgets(buffer, sizeof(buffer), stdin);
-                column2 = atoi(buffer);
-                
-                //if column is within range, pass column check
-                if((column2 > 0) && (column2 <= size)) {
-                    column2check = 1;
-                }
-                
-                //else print error and ask for another input
-                else {
-                    printf("That is not a valid column number.\n");
-                }
-            }
-              
-            //now here comes the difficult part!
-            //check that the ship coordinates:
-                //are appropriately sized (ex: 1 apart if the ship is 2 slots long)
-                //are horizontally or vertically distanced from one another (no diagonal ships)
-                //do not cross over any other ships
-            //if the distance between the rows == the ships length and the distance between the columns == 0, or vice versa
-            //everything is okay
-            //if not, then they have to place shit differently
-            if(!(abs(row2 - row) == 1 && abs(column2 - column) == 0) || (abs(row2 - row) == 0 && abs(column2 - column) == 1)) {
-                printf("Ships don't bend like that. Please place the front and back of your ship appropriately.\n")
-            }
-            //next, check that the ship does not cross over any other ships
-            
-            
-        }
-      
-      //----------------------------------------------------END OF PLACEMENT PHASE----------------------------------------------------
-      */
 
 void process( char * s ) {
 
@@ -312,56 +208,317 @@ void printSettings(int board, int emoji) {
     printf("%s", answer);
 }
 
-//used for setup phase
-char inputSettings(char *question, char *type) {
-  //char input[16];
-  //memset(&input[0], 0, sizeof(input));
-  //char *p;
-  while(1) {
-    char input[16];
-    char *p;
-    //Ask for setting input
-    printf("%s", question);
-    fgets(input, sizeof(input), stdin);
-    //printf("FGETS COMPLETE\n");
-    //remove newline char added when entering number
-    p = strchr(input, '\n');
-    p = 0;
+char ** shipPlacement(int BOARD_SIZE) {
 
-    //if entering board
-  	if (!strcmp(type, "board")) {
-      if ((atoi(input) >= 1) && (atoi(input) <= 3)) {
-        return atoi(input);
-      }
-      else {
-        printf("Value not in range, please enter again.\n");
-      }
+    //variables both server and client need for placement
+    int size;
+    int num2slotships;
+    int num3slotships;
+    int num4slotships;
+    int num5slotships;
+
+    //setting variables according to entered BOARD_SIZE
+    if (BOARD_SIZE == 1) {
+        size = 8;
+        int num2slotships = 1;
+        int num3slotships = 2;
+        int num4slotships = 1;
+        int num5slotships = 1;
+    }
+    if (BOARD_SIZE == 2) {
+        size = 10;
+        int num2slotships = 2;
+        int num3slotships = 3;
+        int num4slotships = 1;
+        int num5slotships = 2;
+    }
+    if (BOARD_SIZE == 3) {
+        size = 14;
+        int num2slotships = 2;
+        int num3slotships = 3;
+        int num4slotships = 2;
+        int num5slotships = 3;
     }
 
-  	if (!strcmp(type, "emoji")) {
-      if ((atoi(input) >= 1) && (atoi(input) <= 2))  {
-        //printf("EMOJI VALUE RIGHT\n");
-        //printf("Printing input within emoji: %s\n", input);
-        //printf("printing atoi within emoji: %d\n", atoi(input));
-        return atoi(input);
-      }
-      else {
-        //printf("EMOJI VALUE WRONG\n");
-        printf("Value not in range, please enter again.\n");
-      }
+    //creating board to edit
+    char shipBoard[size][size];
+
+    while(num2slotships + num3slotships + num4slotships + num5slotships) {
+        //printing board and number of remaining ships
+        printBoard(shipBoard, size);
+        printf("Number of 2 Slot Ships: %d\n", num2slotships);
+        printf("Number of 3 Slot Ships: %d\n", num3slotships);
+        printf("Number of 4 Slot Ships: %d\n", num4slotships);
+        printf("Number of 5 Slot Ships: %d\n", num5slotships);
+
+        //ask for a ship input
+        printf("Which type of ship would you like to place down?\nEnter Value:");
+
+        //loop until acceptable input entered
+        int acceptableInput = 0;
+        while(!acceptableInput) {
+            char *shipInput[MESSAGE_BUFFER_SIZE];
+            fgets(shipInput, sizeof(shipInput), stdin);
+
+            //cut off trailing \n
+            char *cut = strchr(shipInput, '\n');
+            *cut = 0;
+
+            //convert string input to int
+            int shipSelect = 0;
+            shipSelect = atoi(shipInput);
+
+            //choose proper input for placement function based off of entered ship selection
+            if (shipSelect == 1) {memcpy(shipBoard, placeShip(shipBoard, 2, size), sizeof(char) * size * size); acceptableInput = 1;}
+            else if (shipSelect == 2)  {memcpy(shipBoard, placeShip(shipBoard, 3, size), sizeof(char) * size * size); acceptableInput = 1;}
+            else if (shipSelect == 3)  {memcpy(shipBoard, placeShip(shipBoard, 4, size), sizeof(char) * size * size); acceptableInput = 1;}
+            else if (shipSelect == 4)  {memcpy(shipBoard, placeShip(shipBoard, 5, size), sizeof(char) * size * size); acceptableInput = 1;}
+            else {printf("That is not a valid input.\n");}
+        }
+    }
+    return shipBoard;
+}
+
+void printBoard(char* board[], int size) {
+/*" \\  1   2   3   4   5   6   7   8   9   10  11  12  13  14
+    ---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+    1  | o | o | o | o |   |   |   |   |   |   |   |   |   |   |
+    2  |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    3  |   |   |   |   |   |   | o |   |   |   |   |   |   |   |
+    4  |   |   |   |   |   |   | o |   |   |   |   |   |   |   |
+    5  |   |   |   |   |   |   | o |   |   |   |   |   |   |   |
+    6  |   |   |   |   |   |   | o |   |   |   |   |   |   |   |
+    7  |   |   |   |   |   |   | o |   |   |   |   |   |   |   |
+    8  |   |   |   |   |   |   | o |   |   |   | o | o |   |   |
+    9  |   |   |   |   |   |   | o |   |   |   |   |   |   |   |
+    10 |   |   |   |   |   |   | o |   |   |   |   |   |   | o |
+    11 |   |   |   |   |   |   | o |   |   |   |   |   |   | o |
+    12 |   | o | o | o |   |   | o |   |   |   |   |   |   | o |
+    13 |   |   |   |   |   |   | o |   |   |   |   |   |   | o |
+    14 |   |   |   |   |   |   | o |   |   |   |   |   |   |   |
+    ---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+*/
+
+    if (size == 8) {
+        printf(" \\   ");
+        int x = 1;
+        for (x; x <= size; x++) {
+            printf("%d   ", x);
+        }
     }
 
-  	if (!strcmp(type, "confirm")) {
-      if (atoi(input) == 1) {
-        return atoi(input);
-      }
-      else if (atoi(input) == 2) {
-        printf("~~~~~~~~~Starting Settings Over~~~~~~~~~\n");
-        return 0;
-      }
-      else {
-        printf("Value not in range, please enter again\n");
-      }
+    if (size = 14) {
+        printf(" \\   ");
+        int x = 1;
+        for (x; x <= 10; x++) {
+            printf("%d   ", x);
+        }
+        int y = 11;
+        for (y; y <= 14; y++) {
+            printf("%d  ");
+        }
     }
-  }
+
+    printf("\n");
+
+    if (size == 8) {
+        printf("---+---+---+---+---+---+---+---+---+\n");
+    }
+
+    if (size == 14) {
+        printf("---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n");
+    }
+
+    int row = 0;
+    for(row; row < size; row++) {
+
+        printf("%c", row);
+        if (atoi(board[row]) < 10) {
+                printf("  ");
+            }
+            else {
+                printf(" ");
+            }
+
+        int column = 0;
+        for (column; column < size; column++) {
+            printf("| ");
+            printf("%c", board[row][column]);
+            printf(" ");
+        }
+
+        printf("|\n");
+    }
+
+    if (size == 8) {
+        printf("---+---+---+---+---+---+---+---+---+\n");
+    }
+
+    if (size == 14) {
+        printf("---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n");
+    }
+}
+
+char ** placeShip(char** shipBoard, int shipLength, int size) {
+
+    printf("~~~~~How Placement Works~~~~~\n");
+    printf("- You will be prompted to enter one coordinate (Row and Column) and the direction of placement.\n");
+    printf("- That coordinate will act as the starting point, with the rest of the ship extending to the\ndirection of choice. Ships will appear on the board as they are placed.\n");
+
+    int row = 0;
+    int column = 0;
+    int direction = 0;
+    int valid = 0;
+    while(!valid) {
+        valid = 1;
+        //Print Board.
+        //BOARD PRINTING METHOD HERE. Clear terminal and print board at top with a few new lines.
+        execlp("clear", "clear");
+        printBoard(shipBoard, size);
+
+        //-------------Asking for first coordinate-------------
+        printf("Where would you like to place the first point of your ship?\n");
+        //ask for row
+        //loop to make sure row input is in the array
+        char *buffer[MESSAGE_BUFFER_SIZE];
+        int rowcheck = 0;
+        while(!rowcheck) {
+            row = 0;
+            printf("Enter the Row: ");
+            fgets(buffer, sizeof(buffer), stdin);
+            row = atoi(buffer);
+
+            //if column is within range, pass column check
+            if((row > 0) && (row <= size)) {
+                rowcheck = 1;
+            }
+
+            //else print error and ask for another input
+            else {
+                printf("That is not a valid row number.\n");
+            }
+        }
+
+        //ask for column
+        //loop to make sure column input is in the array
+        int columncheck = 0;
+        while(!columncheck) {
+            column = 0;
+            printf("Enter the Column: ");
+            fgets(buffer, sizeof(buffer), stdin);
+            column = atoi(buffer);
+
+            //if column is within range, pass column check
+            if((column > 0) && (column <= size)) {
+                columncheck = 1;
+            }
+
+            //else print error and ask for another input
+            else {
+                printf("That is not a valid column number.\n");
+            }
+        }
+
+        //ask for direction
+        int directioncheck = 0;
+        while(!directioncheck) {
+            direction = 0;
+            printf("Where would you like your ship to point?\n\t1. North\n\t2. South\n\t3. West\n\t4. East\nEnter Value: ");
+            fgets(buffer, sizeof(buffer), stdin);
+            direction = atoi(buffer);
+            //if direction is within range, pass direction check
+            if((direction > 0) && (direction <= 4)) {
+                directioncheck = 1;
+            }
+            else {
+                printf("That is not a valid choice of direction.\n");
+            }
+        }
+
+        //check for ship/array conflicts
+        //if direction = north, check column -> column - length, check for array conflicts, check for ship conflicts.
+        if (direction = 1) {
+            int columnpointer = column - 1;
+            for(columnpointer; columnpointer < (column + shipLength - 1); columnpointer++) {
+                if ((columnpointer < 0) || (columnpointer >= size)) {
+                    valid = 0;
+                }
+                else if (!(shipBoard[row][columnpointer] == '0')) {
+                    valid = 0;
+                }
+            }
+        }
+        //if direction = south, check column -> column - length, check for end of array, check for ship conflicts.
+        if (direction = 2) {
+            int columnpointer = column - 1;
+            for(columnpointer; columnpointer > (column - shipLength - 1); columnpointer--) {
+                if ((columnpointer < 0) || (columnpointer >= size)) {
+                    valid = 0;
+                }
+                else if (!(shipBoard[row][columnpointer] == '0')) {
+                    valid = 0;
+                }
+            }
+        }
+        //if direction = east, check row -> row + length, check for end of array, check for ship conflicts.
+        if (direction = 3) {
+            int rowpointer = row - 1;
+            for(rowpointer; rowpointer < (row + shipLength - 1); rowpointer++) {
+                if ((rowpointer < 0) || (rowpointer >= size)) {
+                    valid = 0;
+                }
+                else if (!(shipBoard[rowpointer][column] == '0')) {
+                    valid = 0;
+                }
+            }
+        }
+        //if direction = west, check row -> row - length, check for end of array, check for ship conflicts.
+        if (direction = 4) {
+            int rowpointer = row - 1;
+            for(rowpointer; rowpointer > (row - shipLength - 1); rowpointer--) {
+                if ((rowpointer < 0) || (rowpointer >= size)) {
+                    valid = 0;
+                }
+                else if (!(shipBoard[rowpointer][column] == '0')) {
+                    valid = 0;
+                }
+            }
+        }
+
+        //after the row, column, and direction have been chosen and all inputs are valid
+        //if the ship either goes off the board
+        //or the ship crosses over another ship
+        //the ship placement is not valid and therefore the loop restarts
+        if (!valid) {
+            printf("That is not a valid ship placement.\n");
+        }
+    }
+
+    //place ships
+    if (direction = 1) {
+        int columnpointer = column - 1;
+        for(columnpointer; columnpointer < (column + shipLength - 1); columnpointer++) {
+            shipBoard[row][columnpointer] = 'o';
+        }
+    }
+    if (direction = 2) {
+        int columnpointer = column - 1;
+        for(columnpointer; columnpointer > (column - shipLength - 1); columnpointer--) {
+            shipBoard[row][columnpointer] = 'o';
+        }
+    }
+    if (direction = 3) {
+        int rowpointer = row - 1;
+        for(rowpointer; rowpointer > (row - shipLength - 1); rowpointer++) {
+            shipBoard[rowpointer][column] = 'o';
+        }
+    }
+    if (direction = 4) {
+        int rowpointer = row - 1;
+        for(rowpointer; rowpointer > (row - shipLength - 1); rowpointer--) {
+            shipBoard[rowpointer][column] = 'o';
+        }
+    }
+
+    //return editted board
+    return shipBoard;
 }
