@@ -166,7 +166,121 @@ int main( int argc, char *argv[] ) {
         printf("Number of 3 Slot Ships: %d\n", num3slotships);
         printf("Number of 4 Slot Ships: %d\n", num4slotships);
         printf("Number of 5 Slot Ships: %d\n", num5slotships);
-        */
+        //--------------------------ACTUAL PLACEMENT BEGINS HERE--------------------------
+        char *buffer[MESSAGE_BUFFER_SIZE];
+        //temp loop to place all 2 slot ships first, may replace later with random ship selection.
+        while(num2slotships) {
+          
+            //-------------Asking for first coordinate-------------
+            printf("Where would you like to place the first point of your 2 slot ship?\n");
+          
+            //ask for row
+            //loop to make sure row input is in the array
+            int rowcheck = 0;
+            while(!rowcheck) {
+                int row = 0;
+                printf("Enter the x coordinate: ");
+                fgets(buffer, sizeof(buffer), stdin);
+                row = atoi(buffer);
+              
+                //if column is within range, pass column check
+                if((row > 0) && (row <= size)) {
+                    rowcheck = 1;
+                }
+                  
+                //else print error and ask for another input
+                else {
+                    printf("That is not a valid row number.\n");
+                }
+            }
+              
+            //ask for column
+            //loop to make sure column input is in the array
+            int columncheck = 0;
+            while(!columncheck) {
+                int column = 0;
+                printf("Enter the y coordinate: ");
+                fgets(buffer, sizeof(buffer), stdin);
+                column = atoi(buffer);
+                
+                //if column is within range, pass column check
+                if((column > 0) && (column <= size)) {
+                    columncheck = 1;
+                }
+                
+                //else print error and ask for another input
+                else {
+                    printf("That is not a valid column number.\n");
+                }
+            }
+              
+            //check if there is a ship already at the entered location
+            if (shipBoard[row][column] == '0')) {
+                printf("There is already a ship there. Please enter different coordinates.\n");
+            }
+              
+              
+            //-------------Asking for second coordinate-------------
+            printf("Where would you like to place the second point of your 2 slot ship?\n");
+              
+            //ask for row
+            //loop to make sure row input is in the array
+            int row2check = 0;
+            while(!row2check) {
+                int row2 = 0;
+                printf("Enter the x coordinate: ");
+                fgets(buffer, sizeof(buffer), stdin);
+                row2 = atoi(buffer);
+                  
+                //if column is within range, pass column check
+                if((row2 > 0) && (row2 <= size)) {
+                    row2check = 1;
+                }
+                  
+                //else print error and ask for another input
+                else {
+                    printf("That is not a valid row number.\n");
+                }
+            }
+              
+            //ask for column
+            //loop to make sure column input is in the array
+            int column2check = 0;
+            while(!column2check) {
+                int column2 = 0;
+                printf("Enter the y coordinate: ");
+                fgets(buffer, sizeof(buffer), stdin);
+                column2 = atoi(buffer);
+                
+                //if column is within range, pass column check
+                if((column2 > 0) && (column2 <= size)) {
+                    column2check = 1;
+                }
+                
+                //else print error and ask for another input
+                else {
+                    printf("That is not a valid column number.\n");
+                }
+            }
+              
+            //now here comes the difficult part!
+            //check that the ship coordinates:
+                //are appropriately sized (ex: 1 apart if the ship is 2 slots long)
+                //are horizontally or vertically distanced from one another (no diagonal ships)
+                //do not cross over any other ships
+            //if the distance between the rows == the ships length and the distance between the columns == 0, or vice versa
+            //everything is okay
+            //if not, then they have to place shit differently
+            if(!(abs(row2 - row) == 1 && abs(column2 - column) == 0) || (abs(row2 - row) == 0 && abs(column2 - column) == 1)) {
+                printf("Ships don't bend like that. Please place the front and back of your ship appropriately.\n")
+            }
+            //next, check that the ship does not cross over any other ships
+            
+            
+        }
+      
+      //----------------------------------------------------END OF PLACEMENT PHASE----------------------------------------------------
+      */
 
 void process( char * s ) {
 
