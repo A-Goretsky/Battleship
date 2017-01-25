@@ -24,7 +24,7 @@ int main( int argc, char *argv[] ) {
     printf("Successfully received server input...\n");
     sd = server_setup();
 
-    //SETUP PHASE: SERVER ONLY
+    //----------------------------------------------------SETUP PHASE: SERVER ONLY----------------------------------------------------
     /*int CONFIRMATION = 0;
     while(!CONFIRMATION) {
           BOARD_SIZE = inputSettings("What would you like the size of the board to be?\n\t1. Small (7x7)\n\t2. Medium (14x14)\n\t3. Large (20x20)\nEnter Value: ", "board");
@@ -37,7 +37,7 @@ int main( int argc, char *argv[] ) {
 		  CONFIRMATION = inputSettings(settings, "confirm");
     }*/
 
-    //CONNECTION PHASE
+    //----------------------------------------------------CONNECTION PHASE----------------------------------------------------
     //new attempt at settings
 
 
@@ -58,15 +58,18 @@ int main( int argc, char *argv[] ) {
     }else{
         printf("Value not in range\n");
     }
-    short netVal = htons(BOARD_SIZE);
+    int netVal = htons(BOARD_SIZE);
     while (1) {
       printf("Attempting Connection...\n");
       connection = server_connect( sd );
       close(sd);
       char buffer[MESSAGE_BUFFER_SIZE];
+      printf("printing BOARD_SIZE: %d\n", BOARD_SIZE);
+      printf("printing netVal: %x\n", netVal);
 
-      //Print Rules on Client End.
-      write(connection, netVal, sizeof(netVal));
+      //Send Rules to Client.
+      write(connection, &netVal, sizeof(netVal));
+
       //Main while loop
       while (read(connection, buffer, sizeof(buffer) )) {
         printf("[SERVER %d] received: %s\n", getpid(), buffer );
@@ -74,68 +77,7 @@ int main( int argc, char *argv[] ) {
       }
       exit(0);
       close( connection );
-      /*
-      int size;
-      int num2slotships;
-      int num3slotships;
-      int num4slotships;
-      int num5slotships;
-      int BOARD_SIZE;
-      if (BOARD_SIZE == 1) {
-          size = 7;
-          int num2slotships = 1;
-          int num3slotships = 2;
-          int num4slotships = 1;
-          int num5slotships = 1;
-      }
-      if (BOARD_SIZE == 2) {
-          size = 14;
-          int num2slotships = 2;
-          int num3slotships = 3;
-          int num4slotships = 1;
-          int num5slotships = 2;
-      }
-      if (BOARD_SIZE == 3) {
-          size = 20;
-          int num2slotships = 2;
-          int num3slotships = 3;
-          int num4slotships = 2;
-          int num5slotships = 3;
-      }
 
-      char guessBoard[size][size];
-      char shipBoard[size][size];
-      char enemyShipBoard[size][size];
-
-      printBoard(shipBoard);
-      printf("Number of 2 Slot Ships: %d\n", num2slotships);
-      printf("Number of 3 Slot Ships: %d\n", num3slotships);
-      printf("Number of 4 Slot Ships: %d\n", num4slotships);
-      printf("Number of 5 Slot Ships: %d\n", num5slotships);
-
-      int xcoor = 0;
-      int ycoor = 0;
-      char *buffer[MESSAGE_BUFFER_SIZE];
-      while(num2slotships) {
-
-          printf("Where would you like to place the first point of your 2 slot ship?\n");
-          int row = 0;
-          printf("Enter the x coordinate: ");
-          fgets(buffer, sizeof(buffer), stdin);
-          row = atoi(buffer);
-          gb
-          int column = 0;
-          printf("Enter the y coordinate: ");
-          fgets(buffer, sizeof(buffer), stdin);
-          column = atoi(buffer);
-
-          if (shipBoard[row][column] == '0') {
-
-          }
-      }
-
-
-      */
     }
   }
 
@@ -151,14 +93,18 @@ int main( int argc, char *argv[] ) {
 
     sd = client_connect( host );
 
-    short netVal[MESSAGE_BUFFER_SIZE];
-    read(sd, netVal, sizeof(netVal));
-    printf("printing netVal: %c\n", netVal);
-    short b2 = ntohs(netVal);
+
+    //Receiving Rules from server
+    int rule = 0;
+    read(sd, &rule, sizeof(rule));
+    char b2[MESSAGE_BUFFER_SIZE];
     printf("wassup\n");
-    //atoi(b2);
-    printf("printing b2: %c\n", b2);
-    //printSettings((int)b2, EMOJI_SET);
+    printf("printing received: %x\n", rule);
+    printf("printing ntohs(rule): %d\n", ntohs(rule));
+
+    //
+
+
     while (1) {
       printf("enter message: ");
       fgets( b2, sizeof(b2), stdin );
@@ -175,8 +121,6 @@ int main( int argc, char *argv[] ) {
   }
   return 0;
 }
-
-
 
 void process( char * s ) {
 
