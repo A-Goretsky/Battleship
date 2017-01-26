@@ -5,8 +5,7 @@ void printSettings(int board, int emoji);
 
 char ** shipPlacement(int BOARD_SIZE);
 
-char ** placeShip(char** shipBoard, int shipLength, int size);
+char ** placeShip(char shipBoard[][14], int shipLength, int size);
 
-void printBoard(char* board[], int size);
 
 #endif

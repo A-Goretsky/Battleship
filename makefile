@@ -1,10 +1,13 @@
 all: main
 
-main: main.o networking.o
-	gcc -o main main.o networking.o
+main: main.o networking.o print.o
+	gcc -o main main.o networking.o print.o
 
-main.o: main.c networking.h
+main.o: main.c main.h networking.h
 	gcc -c main.c
+
+print.o: print.c print.h
+	gcc -c print.c
 
 run: main
 	./main
