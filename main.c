@@ -34,6 +34,7 @@ int main() {
    //----------------------------------------------------SETUP PHASE: SERVER ONLY---------------------------------------------
     //Ask user to set rules.
     char b9[MESSAGE_BUFFER_SIZE];
+    char conbuff1[MESSAGE_BUFFER_SIZE];
     printf("What would you like the size of the board to be?\n\t1. Small (8x8)\n\t2. Medium (10x10)\n\t3. Large (14x14)\nEnter Value: ");
     fgets(b9, sizeof(b9), stdin);
     char *p = strchr(b9, '\n');
@@ -61,6 +62,8 @@ int main() {
 
       //Send Rules to Client.
       write(connection, &netVal, sizeof(netVal));
+
+      read(connection, conbuff1, 25);
 
     //----------------------------------------------------PLACEMENT PHASE (SERVER)----------------------------------------------------
 
@@ -102,9 +105,16 @@ int main() {
     //----------------------------------------------------GAME PHASE (SERVER)----------------------------------------------------
     int game = 1;
     int CONFIRMATION = 0;
-    int x, y, hit, row, column, rowcheck, columncheck, lastcheck;
+    int x, y, hit, hitN, row, column, rowcheck, columncheck, lastcheck, boardres_S, boardresN_S;
+    int xnet, ynet;
+    x = 0;
+    y = 0;
+    xnet = 0;
+    ynet = 0;
+    hit = 0;
+    hitN = 0;
     char *b3[MESSAGE_BUFFER_SIZE];
-    char confBuff;
+    char *conbuff[MESSAGE_BUFFER_SIZE];
     while(game){
         while(!CONFIRMATION) {
             printf("What coordinates would you like to attack?\n");
@@ -164,19 +174,31 @@ int main() {
             }
         }
         //NETWORKING BEGINS
-
-        y = htons(row-1);
-        x = htons(column-1);
+        printf("Printing x before server send: %d", x);
+        printf("Printing x before server send: %d", y);
+        ynet = htons(row-1);
+        xnet = htons(column-1);
+        printf("Printing xnet before server send: %d", xnet);
+        printf("Printing xynet before server send: %d", ynet);
         //Send y coord to client.
-        write(connection, y, sizeof(int));
+        printf("conversions complete\n");
+        write(connection, &ynet, sizeof(ynet));
+
+        printf("sent y\n");
         //Receive Confirmation Message (auto)
-        read(connection, confBuff, sizeof(char));
+        read(connection, conbuff, 30);
+
 
         //Send x coord to client.
-        write(connection, x, sizeof(int));
-        //Receive Confirmation Message (boolean from client)
-        read(connection, hit, sizeof(hit));
 
+        write(connection, &xnet, sizeof(xnet));
+        printf("sent x\n");
+
+        //Receive Confirmation Message (boolean from client)
+        read(connection, &hitN, sizeof(hitN));
+        hit = ntohs(hitN);
+
+        printf("printing hit: %d\n", hit);
         //Hit or miss array set.
         if(hit){
             guessBoard_S[row-1][column-1] = '*';
@@ -186,23 +208,31 @@ int main() {
         }
 
         //Signal client can start writing.
-        write(connection, "turn complete", 20);
+        write(connection, "turn complete", 30);
         //next turn
-
+        printf("completed attack\n");
+        xnet = 0;
+        ynet = 0;
         //Receive client x coord
-        read(connection, x, sizeof(x));
-        x = ntohs(x);
+        printf("reading coord from client\n");
+        read(connection, &ynet, sizeof(ynet));
+        printf("received y\n");
+        y = ntohs(y);
         //Send confirmation message
-        write(connection, "coordinate received", 20);
+        write(connection, "coordinate received", 30);
 
         //Receive client y coord
-        read(connection, y, sizeof(y));
-        y = ntohs(y);
+        read(connection, &xnet, sizeof(xnet));
+        x = ntohs(x);
         //Send boolean: True = hit; false = miss
-        write(connection, shipBoard_S[x][y] == 'o', sizeof(int));
+        boardres_S = shipBoard_S[y][x] == 'o';
+        boardresN_S = htons(boardres_S);
 
+        write(connection, &boardresN_S, sizeof(boardresN_S));
+
+        //STEPHAN
         //Receive Confirmation message
-        read(connection, confBuff, sizeof(confBuff));
+        read(connection, conbuff, sizeof(conbuff));
     }
     //----------------------------------------------------END OF GAME PHASE (SERVER)----------------------------------------------------
 
@@ -238,6 +268,11 @@ int main() {
     //Receiving Rules from server
     BOARD_SIZE = 0;
     read(sd, &BOARD_SIZE, sizeof(BOARD_SIZE));
+
+    //STEPHAN
+    //Send response to client
+    write(sd, "rules recieved", 30);
+
     char b2[MESSAGE_BUFFER_SIZE];
     printf("wassup\n");
     printf("printing received: %x\n", BOARD_SIZE);
@@ -301,29 +336,54 @@ int main() {
     //----------------------------------------------------GAME PHASE (CLIENT)----------------------------------------------------
     int game = 1;
     int CONFIRMATION = 0;
-    int x, y, hit, row, column, rowcheck, columncheck, lastcheck;
+    int x, y, hit, hitN, row, column, rowcheck, columncheck, lastcheck, error, boardresN, boardres;
+    boardres = 0;
+    boardresN = 0;
+    x = 0;
+    y = 0;
+    int xnet, ynet;
+    xnet = 0;
+    ynet = 0;
+    hit = 0;
+    hitN = 0;
     char *b3[MESSAGE_BUFFER_SIZE];
-    char confBuff;
+    char conbuff[MESSAGE_BUFFER_SIZE];
     while(game){
 
-        //Read x coord from server
-        read(sd, x, sizeof(x));
-        //Send conf message
-        write(sd, "coordinate received", 20);
-
         //Read y coord from server
-        read(sd, y, sizeof(y));
+        printf("y read begins\n");
+        error = read(sd, &ynet, sizeof(ynet));
+        if(error){
+            perror("problemo");
+        }
 
+        //Send conf message
+        write(sd, "coordinate received", 30);
+
+        printf("received y\n");
+        //Read y coord from server
+        read(sd, &xnet, sizeof(xnet));
+
+        printf("received x\n");
+        printf("Printing xnet before conversion: %d", xnet);
+        printf("Printing ynet before conversion: %d", ynet);
 
         //Convert from network to normal int
         x = ntohs(x);
         y = ntohs(y);
-
+        printf("printing y: %d\n", y);
+        printf("printing x: %d\n", x);
         //Send boolean conf. true = server hit; false = server missed
-        write(sd, shipBoard_C[x][y] == 'o', sizeof(int));
+        boardres = 0;
+        boardresN = 0;
+        boardres = shipBoard_C[x][y] == 'o';
+        boardresN = htons(boardres);
+
+        write(sd, boardresN, sizeof(boardresN));
+
 
         //wait for confirmation message from server for client_connect's turn
-        read(sd, confBuff, sizeof(confBuff));
+        read(sd, conbuff, sizeof(conbuff));
 
         //NEXT TURN BEGINS
         while(!CONFIRMATION){
@@ -386,22 +446,24 @@ int main() {
             }
         }
 
-        //Conver from network to int (to send to server)
-        y = htons(row-1);
-        x = htons(column-1);
+        ynet = 0;
+        xnet = 0;
+        //Conver from int to network (to send to server)
+        ynet = htons(row-1);
+        xnet = htons(column-1);
 
         //CLIENT TURN NETWORKING BEGINS (Sending to server)
 
         //Send y coord to server
-        write(sd, y, sizeof(int));
+        write(sd, &ynet, sizeof(int));
         //Receive confirmation from server
-        read(sd, confBuff, sizeof(char));
+        read(sd, conbuff, sizeof(conbuff));
 
         //Send x coord to server
-        write(sd, x, sizeof(int));
+        write(sd, &xnet, sizeof(int));
         //Receive confirmation from server (Received true or false for hit)
-        read(sd, hit, sizeof(hit));
-
+        read(sd, &hitN, sizeof(hitN));
+        hit = ntohs(hitN);
         //Update personal (client) guess board with hit or miss
         if(hit){
             guessBoard_C[row-1][column-1] = '*';

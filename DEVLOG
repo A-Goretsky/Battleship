@@ -1,2 +1,9 @@
+[1/16/17] Stephan puts together networking code into one file. Run one executable and choose if server or client.
+[1/19/17] Stephan edit makefile
+[1/20/17] Collaborate on fixing networking errors
+[1/21/17] Anton tests out different board design schemes, settles on final design.
 [1/22/17] Dylan makes minor updates to make clean and to main formatting
-[1/22/17]
+[1/23/17] Collaborated on bugfixes
+[1/24/17] Worked together on networking
+[1/25/17] Collaborated, Base placement code implemented
+[1/26/17] Collaborated, Placement and setup works, fixed some networking bugs
